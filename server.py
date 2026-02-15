@@ -23,7 +23,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("inventree_mcp")
+mcp = FastMCP(
+    "inventree_mcp",
+    host=os.getenv("HOST", "0.0.0.0"),
+    port=int(os.getenv("PORT", "3000")),
+)
 
 # ── Lazy client singleton ────────────────────────────────────────────
 
@@ -90,7 +94,9 @@ def _safe(tool_name: str):
             except Exception as e:
                 op = kwargs.get("operation", args[0] if args else "unknown")
                 return _error(e, f"{tool_name}.{op}")
+
         return wrapper
+
     return decorator
 
 
@@ -326,7 +332,9 @@ async def stock(
             extra["notes"] = data["notes"]
         if "value" in (data or {}):
             extra["value"] = data["value"]
-        return _json(await c.stock_upload_test_result(pk, test_name, test_result, **extra))
+        return _json(
+            await c.stock_upload_test_result(pk, test_name, test_result, **extra)
+        )
 
     elif operation == "get_test_results":
         return _json(await c.stock_get_test_results(pk))
@@ -944,10 +952,14 @@ async def attachment(
         return _json(await c.attachment_list(model_type, model_id))
 
     elif operation == "upload":
-        return _json(await c.attachment_upload(model_type, model_id, file_path, comment))
+        return _json(
+            await c.attachment_upload(model_type, model_id, file_path, comment)
+        )
 
     elif operation == "upload_link":
-        return _json(await c.attachment_upload_link(model_type, model_id, link, comment))
+        return _json(
+            await c.attachment_upload_link(model_type, model_id, link, comment)
+        )
 
     elif operation == "download":
         return _json(await c.attachment_download(attachment_id, destination))
@@ -1028,9 +1040,10 @@ if __name__ == "__main__":
     transport = sys.argv[1] if len(sys.argv) > 1 else "stdio"
 
     if transport == "sse":
-        port = int(sys.argv[2]) if len(sys.argv) > 2 else int(os.getenv("PORT", "3074"))
-        logger.info(f"Starting InvenTree MCP Server on SSE port {port}")
-        mcp.run(transport="sse", port=port)
+        port = int(os.getenv("PORT", "3000"))
+        host = os.getenv("HOST", "0.0.0.0")
+        logger.info(f"Starting InvenTree MCP Server on {host}:{port}")
+        mcp.run(transport="sse")
     else:
         logger.info("Starting InvenTree MCP Server on STDIO")
         mcp.run(transport="stdio")
