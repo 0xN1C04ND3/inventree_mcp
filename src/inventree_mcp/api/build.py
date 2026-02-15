@@ -60,3 +60,7 @@ async def build_order_operations(
 
     else:
         return _json({"error": f"Unknown operation: {operation}"})
+
+
+# Alias for consistency with import
+build_operations = build_order_operations

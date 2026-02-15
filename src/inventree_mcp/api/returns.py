@@ -55,3 +55,7 @@ async def return_order_operations(
 
     else:
         return _json({"error": f"Unknown operation: {operation}"})
+
+
+# Alias for consistency with import
+returns_operations = return_order_operations

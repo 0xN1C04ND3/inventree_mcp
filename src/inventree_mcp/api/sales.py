@@ -74,3 +74,7 @@ async def sales_order_operations(
 
     else:
         return _json({"error": f"Unknown operation: {operation}"})
+
+
+# Alias for consistency with import
+sales_operations = sales_order_operations
