@@ -9,11 +9,31 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+]
+
 [project.scripts]
 inventree-mcp = "inventree_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/inventree_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "unit: marks tests as unit tests (no external dependencies)",
+    "mcp_client: marks tests as MCP client protocol tests",
+    "integration: marks tests as integration tests (require real InvenTree API)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
 
 [build-system]
 requires = ["hatchling"]

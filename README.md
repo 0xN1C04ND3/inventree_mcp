@@ -127,6 +127,35 @@ inventree/
 
 The `inventree-python` library is synchronous (requests-based). All calls are offloaded to threads via `asyncio.to_thread()` to maintain async compatibility with the MCP framework.
 
+## Testing
+
+This project uses a three-tier testing strategy:
+
+- **Unit tests** - Fast validation tests (no external dependencies)
+- **MCP client tests** - Protocol-level tests with mocked APIs
+- **Integration tests** - Full stack tests with real InvenTree API
+
+See [TEST_STRATEGY.md](./TEST_STRATEGY.md) for detailed implementation plan and testing guidelines.
+
+### Quick Start
+
+```bash
+# Install dev dependencies
+uv pip install -e ".[dev]"
+
+# Run fast unit tests
+pytest -m "unit" -v
+
+# Run MCP protocol tests (mocked API)
+pytest -m "mcp_client" -v
+
+# Run all tests except integration
+pytest -m "not integration" -v
+
+# Run integration tests (requires InvenTree instance)
+pytest -m "integration" -v
+```
+
 ## License
 
 MIT

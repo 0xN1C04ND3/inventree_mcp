@@ -7,6 +7,7 @@ async def system_operations(
     client,
     operation: str,
     pk: int = None,
+    setting_key: str = None,
 ) -> str:
     """Execute system operations.
 
