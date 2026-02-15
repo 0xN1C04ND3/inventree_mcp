@@ -35,13 +35,17 @@ INVENTREE_TOKEN=your-api-token-here
 ### STDIO mode (default)
 
 ```bash
-uv run python server.py
+# Using entry point (recommended)
+uv run inventree-mcp
+
+# Or using module
+uv run python -m inventree_mcp
 ```
 
 ### SSE mode (HTTP transport)
 
 ```bash
-uv run python server.py sse --port 3074
+uv run python -m inventree_mcp sse --port 3074
 ```
 
 ### Claude Desktop / MCP client configuration
@@ -53,7 +57,7 @@ Add to your MCP client config (e.g. `~/.claude/mcp.json`):
   "mcpServers": {
     "inventree-mcp": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/inventree-mcp", "python", "server.py"],
+      "args": ["run", "--directory", "/path/to/inventree-mcp", "inventree-mcp"],
       "env": {
         "INVENTREE_URL": "https://your-inventree-instance.example.com",
         "INVENTREE_TOKEN": "your-api-token-here"
@@ -96,10 +100,32 @@ Each tool uses a parameterized `operation` field to select the specific action.
 
 ## Architecture
 
-- **`server.py`** — FastMCP server with 12 parameterized tools and dual transport (STDIO/SSE)
-- **`client.py`** — Async adapter wrapping the official [inventree-python](https://github.com/inventree/inventree-python) library via `asyncio.to_thread()` with a semaphore for concurrency control
+The server follows a modular structure for better maintainability:
 
-The `inventree-python` library is synchronous (requests-based). All calls are offloaded to threads to maintain async compatibility with the MCP framework.
+```
+inventree/
+├── src/inventree_mcp/
+│   ├── server.py          # FastMCP server with tool registration
+│   ├── client.py          # Async adapter wrapping inventree-python
+│   ├── utils.py           # Helper functions (_json, _error, _safe)
+│   └── api/               # Modular API operation modules
+│       ├── part.py        # Part operations (21 operations)
+│       ├── stock.py       # Stock operations (16 operations)
+│       ├── build.py       # Build order operations (9 operations)
+│       ├── purchase.py    # Purchase order operations (12 operations)
+│       ├── sales.py       # Sales order operations (14 operations)
+│       ├── returns.py     # Return order operations (8 operations)
+│       ├── company.py     # Company operations (12 operations)
+│       ├── barcode.py     # Barcode operations (4 operations)
+│       ├── label.py       # Label operations (5 operations)
+│       ├── report.py      # Report operations (3 operations)
+│       ├── attachment.py  # Attachment operations (5 operations)
+│       └── system.py      # System operations (8 operations)
+├── pyproject.toml         # Package configuration with entry point
+└── README.md
+```
+
+The `inventree-python` library is synchronous (requests-based). All calls are offloaded to threads via `asyncio.to_thread()` to maintain async compatibility with the MCP framework.
 
 ## License
 

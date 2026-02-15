@@ -13,7 +13,9 @@ import sys
 from typing import Any
 
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 load_dotenv()
 
@@ -55,6 +57,11 @@ async def get_client():
         await _client.connect()
         logger.info(f"InvenTree client connected to {url}")
     return _client
+
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(request: Request):
+    return JSONResponse({"status": "ok", "service": "inventree-mcp"})
 
 
 def _json(data: Any) -> str:

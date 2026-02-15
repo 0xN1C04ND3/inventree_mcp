@@ -4,14 +4,16 @@ version = "1.0.0"
 description = "MCP server for InvenTree inventory management — 12 tools, 117 operations"
 requires-python = ">=3.11"
 dependencies = [
-    "mcp>=1.0.0",
+    "fastmcp>=2.0.0",
     "inventree>=0.22.0",
     "python-dotenv>=1.0.0",
 ]
 
+[project.scripts]
+inventree-mcp = "inventree_mcp.server:main"
+
 [tool.hatch.build.targets.wheel]
-packages = ["."]
-only-include = ["server.py", "client.py"]
+packages = ["src/inventree_mcp"]
 
 [build-system]
 requires = ["hatchling"]
